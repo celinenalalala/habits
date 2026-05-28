@@ -1,0 +1,30 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "Stores user RPG stats, habits, and progress.",
+      "type": "object",
+      "properties": {
+        "xp": { "type": "number", "description": "Experience points" },
+        "stardust": { "type": "number", "description": "Currency" },
+        "level": { "type": "number", "description": "Player level" },
+        "hp": { "type": "number", "description": "Player health" },
+        "enemyHp": { "type": "number", "description": "Current enemy health" },
+        "monsterType": { "type": "string", "description": "Type of monster currently being fought" },
+        "quests": { "type": "array", "description": "List of daily quests" },
+        "aiHabits": { "type": "array", "description": "List of AI-powered habits" },
+        "sleepLogs": { "type": "array", "description": "Recent sleep logs" },
+        "multiplier": { "type": "number", "description": "Current reward multiplier" },
+        "lastActiveDate": { "type": "string", "description": "Last date the user was active (YYYY-MM-DD)" },
+        "updatedAt": { "type": "string", "format": "date-time", "description": "Last sync time" }
+      },
+      "required": ["xp", "stardust", "level"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User documents identified by Auth UID"
+    }
+  }
+}

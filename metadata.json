@@ -1,0 +1,6 @@
+{
+  "name": "Rainbow Run",
+  "description": "A gamified self-improvement app where building healthy habits levels up your character and defeats cosmic enemies.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
