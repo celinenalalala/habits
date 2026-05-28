@@ -66,6 +66,11 @@ const firebaseConfig = {
   databaseId: "ai-studio-031ddc67-63cf-441e-9734-ddc1763a2c3b"
 };
 
+// --- Icons Mapping ---
+const ICON_MAP: Record<string, any> = {
+  Droplets, Footprints, Dumbbell, Moon, Camera, Sparkles, Trophy, Star, Zap, ShieldAlert
+};
+
 // Types
 interface Quest {
   id: string;
@@ -73,7 +78,7 @@ interface Quest {
   difficulty: 'EASY' | 'MEDIUM' | 'HARD';
   xpReward: number;
   completed: boolean;
-  icon: any;
+  iconName: string;
   progress?: number;
 }
 
@@ -82,7 +87,7 @@ interface AiHabit {
   name: string;
   streak: number;
   progress: number;
-  icon: any;
+  iconName: string;
   aiMessage: string;
   completed: boolean;
   type: 'SLEEP' | 'NUTRITION';
@@ -151,9 +156,9 @@ export default function App() {
   const [lastActiveDate, setLastActiveDate] = useState<string | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [quests, setQuests] = useState<Quest[]>([
-    { id: '1', name: '2L of Water', difficulty: 'EASY', xpReward: 5, completed: true, icon: Droplets },
-    { id: '2', name: '10,000 Steps', difficulty: 'MEDIUM', xpReward: 15, completed: false, icon: Footprints, progress: 45 },
-    { id: '3', name: '30-Min Workout', difficulty: 'HARD', xpReward: 25, completed: false, icon: Dumbbell }
+    { id: '1', name: '2L of Water', difficulty: 'EASY', xpReward: 5, completed: true, iconName: 'Droplets' },
+    { id: '2', name: '10,000 Steps', difficulty: 'MEDIUM', xpReward: 15, completed: false, iconName: 'Footprints', progress: 45 },
+    { id: '3', name: '30-Min Workout', difficulty: 'HARD', xpReward: 25, completed: false, iconName: 'Dumbbell' }
   ]);
 
   const [aiHabits, setAiHabits] = useState<AiHabit[]>([
@@ -162,7 +167,7 @@ export default function App() {
       name: 'Digital Sunset Optimizer', 
       streak: 5, 
       progress: 0, 
-      icon: Moon, 
+      iconName: 'Moon', 
       aiMessage: 'Analyzing sleep patterns and circadian rhythm...',
       completed: false,
       type: 'SLEEP',
@@ -174,7 +179,7 @@ export default function App() {
       name: 'Rainbow Nutrition Scan', 
       streak: 9, 
       progress: 0, 
-      icon: Camera, 
+      iconName: 'Camera', 
       aiMessage: 'Analyzing meal colors and nutritional balance...',
       completed: false,
       type: 'NUTRITION',
@@ -236,7 +241,7 @@ export default function App() {
     try {
       await setDoc(userRef, { ...data, updatedAt: new Date().toISOString() }, { merge: true });
     } catch (err) {
-      console.error("Sync error:", err);
+      handleFirestoreError(err, OperationType.WRITE, `users/${user.uid}`);
     }
   }, [user]);
 
@@ -300,7 +305,7 @@ export default function App() {
       }
       setIsInitialLoad(false);
     }, (error) => {
-      console.error("Firestore Listener Error:", error);
+      handleFirestoreError(error, OperationType.GET, `users/${user.uid}`);
       setIsInitialLoad(false);
     });
 
@@ -880,7 +885,10 @@ export default function App() {
 
                       <div className="flex justify-between items-start">
                         <div className="w-12 h-12 rounded-xl bg-white/5 backdrop-blur-xl border border-white/10 flex items-center justify-center shadow-inner">
-                          <habit.icon className="w-7 h-7 text-[#88d2e3]" />
+                          {(() => {
+                            const IconComp = ICON_MAP[habit.iconName] || Cpu;
+                            return <IconComp className="w-7 h-7 text-[#88d2e3]" />;
+                          })()}
                         </div>
                         <div className="flex flex-col items-end">
                           <span className="text-[10px] font-mono text-[#cdc3d0] uppercase tracking-widest">Streak</span>
@@ -1121,7 +1129,10 @@ export default function App() {
                       <div className="flex items-center gap-4">
                         <div className={`w-12 h-12 rounded-lg border-2 flex items-center justify-center
                           ${quest.completed ? 'bg-[#6a17ad]/20 border-[#deb7ff]' : 'bg-[#1a0935] border-[#4b444f]'}`}>
-                          <quest.icon className={`w-8 h-8 ${quest.completed ? 'text-[#deb7ff]' : 'text-[#cdc3d0]'}`} />
+                          {(() => {
+                            const IconComp = ICON_MAP[quest.iconName] || Check;
+                            return <IconComp className={`w-8 h-8 ${quest.completed ? 'text-[#deb7ff]' : 'text-[#cdc3d0]'}`} />;
+                          })()}
                         </div>
                         <div>
                           <p className={`text-xl leading-tight ${quest.completed ? 'line-through text-[#cdc3d0]' : 'text-[#ecdcff]'}`}>

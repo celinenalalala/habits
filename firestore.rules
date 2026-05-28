@@ -16,9 +16,15 @@ service cloud.firestore {
 
     // 2. Validation Blueprints
     function isValidUser(data) {
-      return data.xp is number &&
-             data.stardust is number &&
-             data.level is number &&
+      return (data.xp is number) &&
+             (data.stardust is number) &&
+             (data.level is number) &&
+             (data.get('hp', 100) is number) &&
+             (data.get('enemyHp', 500) is number) &&
+             (data.get('monsterType', 'GLOOM_MITE') is string) &&
+             (data.get('multiplier', 1.0) is number) &&
+             (data.get('lastActiveDate', '') == null || data.get('lastActiveDate', '') is string) &&
+             (data.get('updatedAt', '') == null || data.get('updatedAt', '') is string) &&
              // 5. Total Array Guarding
              (data.get('quests', []) is list) &&
              (data.get('aiHabits', []) is list) &&
@@ -35,11 +41,9 @@ service cloud.firestore {
 
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow create: if isOwner(userId) && isValidUser(request.resource.data) &&
-                      request.resource.data.xp == 0; // Simple starting check
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
       allow update: if isOwner(userId) && isValidUser(request.resource.data) &&
-                      // Action: Sync Stats
-                      request.resource.data.diff(resource.data).affectedKeys().hasAny(['xp', 'stardust', 'level', 'hp', 'enemyHp', 'quests', 'aiHabits', 'sleepLogs', 'updatedAt']);
+                      request.resource.data.diff(resource.data).affectedKeys().hasOnly(['xp', 'stardust', 'level', 'hp', 'enemyHp', 'monsterType', 'quests', 'aiHabits', 'sleepLogs', 'multiplier', 'lastActiveDate', 'updatedAt']);
       allow delete: if false; // Users cannot delete their profiles via client
     }
   }
